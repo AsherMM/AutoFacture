@@ -109,76 +109,88 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
     if (open) void loadCompany();
   }, [open]);
 
-  /* ============================================================
-     💾 Création de la facture
-  ============================================================ */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-if (!user) {
-  toast.error("Session expirée, reconnectez-vous.");
-  return;
-}
+/* ============================================================
+   💾 Création de la facture
+============================================================ */
+const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  e.preventDefault();
 
-if (!form.client_name || !form.amount) {
-  toast.error("Veuillez remplir les champs requis.");
-  return;
-}
+  // 🔒 Vérification de session
+  if (!user) {
+    toast.error("Session expirée, reconnectez-vous.");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  // 🧾 Vérification des champs obligatoires
+  if (!form.client_name || !form.amount) {
+    toast.error("Veuillez remplir les champs requis (nom du client et montant).");
+    return;
+  }
 
-      const invoiceData = {
-        user_id: user.id,
-        client_name: form.client_name,
-        client_email: form.client_email,
-        client_phone: form.client_phone,
-        client_address: form.client_address,
-        amount: Number(form.amount),
-        description: form.description,
-        status: form.status,
-        payment_method: form.payment_method,
-        due_date: form.due_date,
+  try {
+    setLoading(true);
 
-        company_name: profile?.company_name,
-        company_status: profile?.company_status,
-        company_address: profile?.company_address,
-        company_city: profile?.company_city,
-        company_siret: profile?.company_siret,
-        company_rcs_rm: profile?.company_rcs_rm,
-        company_tva: profile?.company_tva,
-        penalty_rate: profile?.penalty_rate || settings?.penalty_rate,
-        recovery_fee: profile?.recovery_fee || settings?.recovery_fee,
-        escompte: profile?.escompte || settings?.escompte,
-        legal_mentions: profile?.legal_mentions || settings?.legal_mentions,
-        clause_penale: profile?.clause_penale || settings?.clause_penale,
-        company_logo_urls: logoPreviews,
-      };
+    // 📦 Préparation des données de facture
+    const invoiceData = {
+      user_id: user.id,
+      client_name: form.client_name.trim(),
+      client_email: form.client_email.trim() || null,
+      client_phone: form.client_phone.trim() || null,
+      client_address: form.client_address.trim() || null,
+      amount: Number(form.amount),
+      description: form.description.trim() || null,
+      status: form.status,
+      payment_method: form.payment_method,
+      due_date: form.due_date || null,
 
-      const { error } = await supabase.from("invoices").insert([invoiceData]);
-      if (error) throw error;
+      // 📇 Données société
+      company_name: profile?.company_name,
+      company_status: profile?.company_status,
+      company_address: profile?.company_address,
+      company_city: profile?.company_city,
+      company_siret: profile?.company_siret,
+      company_rcs_rm: profile?.company_rcs_rm,
+      company_tva: profile?.company_tva,
+      penalty_rate: profile?.penalty_rate || settings?.penalty_rate,
+      recovery_fee: profile?.recovery_fee || settings?.recovery_fee,
+      escompte: profile?.escompte || settings?.escompte,
+      legal_mentions: profile?.legal_mentions || settings?.legal_mentions,
+      clause_penale: profile?.clause_penale || settings?.clause_penale,
+      company_logo_urls: logoPreviews,
+    };
 
-      if (form.save_client && ["pro", "admin"].includes(plan)) {
-        await supabase.from("clients").insert([
-          {
-            user_id: user.id,
-            name: form.client_name,
-            email: form.client_email,
-            phone: form.client_phone,
-            address: form.client_address,
-          },
-        ]);
-      }
+    // 🧮 Insertion de la facture
+    const { error: invoiceError } = await supabase.from("invoices").insert([invoiceData]);
+    if (invoiceError) throw invoiceError;
 
-      toast.success("✅ Facture créée avec succès !");
-      onCreated?.();
-      onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error("Erreur lors de la création de la facture.");
-    } finally {
-      setLoading(false);
+    // 👥 Sauvegarde du client si autorisé
+    if (form.save_client && ["pro", "admin"].includes(plan)) {
+      const { error: clientError } = await supabase.from("clients").insert([
+        {
+          user_id: user.id,
+          name: form.client_name,
+          email: form.client_email,
+          phone: form.client_phone,
+          address: form.client_address,
+        },
+      ]);
+      if (clientError) throw clientError;
     }
-  };
+
+    // ✅ Succès
+    toast.success("✅ Facture créée avec succès !");
+    onCreated?.();
+    onClose();
+  } catch (err: any) {
+    console.error("Erreur création facture :", err);
+    toast.error("Une erreur est survenue lors de la création de la facture.");
+  } finally {
+    setLoading(false);
+  }
+
+  // 🔚 Cette fonction ne retourne jamais de valeur => garantit un type `Promise<void>`
+  return;
+};
 
   /* ============================================================
      🎨 Thèmes dynamiques selon le plan
