@@ -25,7 +25,7 @@
     /* ----------------------------------------
        🧠 Type Definitions
     ---------------------------------------- */
-    "types": ["node", "react", "react-dom", "@types/jest"],
+    "types": ["node", "react", "react-dom"],
     "incremental": true,
     "baseUrl": ".",
 
@@ -35,15 +35,15 @@
     "paths": {
       "@/*": ["*"],
       "@/app/*": ["app/*"],
-      "@/components/*": ["components/*"],
-      "@/lib/*": ["lib/*"],
-      "@/styles/*": ["styles/*"],
-      "@/types/*": ["types/*"],
-      "@/hooks/*": ["hooks/*"]
+      "@/components/*": ["app/components/*"],
+      "@/lib/*": ["app/lib/*"],
+      "@/styles/*": ["app/styles/*"],
+      "@/types/*": ["app/types/*"],
+      "@/hooks/*": ["app/hooks/*"]
     },
 
     /* ----------------------------------------
-       🧩 Next.js Plugin
+       🧩 Next.js Plugin (officiel)
     ---------------------------------------- */
     "plugins": [{ "name": "next" }],
 
@@ -51,11 +51,10 @@
        🧱 Build Optimization
     ---------------------------------------- */
     "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitOverride": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": false
   },
 
@@ -66,12 +65,11 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/types/**/*.ts"
   ],
 
   /* ----------------------------------------
      🚫 Excluded Files
   ---------------------------------------- */
-  "exclude": ["node_modules", "dist", "build", ".next/cache"]
+  "exclude": ["node_modules", "dist", "build", ".next/cache", "coverage"]
 }
