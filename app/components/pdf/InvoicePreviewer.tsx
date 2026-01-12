@@ -32,7 +32,6 @@ type ThemeKey =
   | "nature"
   | "digital"
   | "creative"
-  | "industrial"
   | "elegant"
   | "contrast"
   | "serene";
@@ -60,7 +59,9 @@ export default function InvoicePreviewer({ open, onClose, invoice }: InvoicePrev
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return;
 
         const { data, error } = await supabase
@@ -71,7 +72,7 @@ export default function InvoicePreviewer({ open, onClose, invoice }: InvoicePrev
 
         if (error) throw error;
 
-        const status =
+        const status: PlanType =
           data?.role === "admin"
             ? "admin"
             : (data?.subscription_status as PlanType) || "free";
@@ -113,14 +114,13 @@ export default function InvoicePreviewer({ open, onClose, invoice }: InvoicePrev
     { key: "nature", label: "Nature 🌿", description: "Tons verts doux et frais", premium: true, color: "from-emerald-600 to-green-400" },
     { key: "digital", label: "Digital 💻", description: "Bleu cyan & haute lisibilité", premium: true, color: "from-sky-500 to-cyan-300" },
     { key: "creative", label: "Créatif 🎨", description: "Violet expressif et moderne", premium: true, color: "from-purple-600 to-fuchsia-400" },
-    { key: "industrial", label: "Industriel ⚙️", description: "Gris métallisé professionnel", premium: true, color: "from-gray-600 to-gray-400" },
     { key: "elegant", label: "Élégant ✨", description: "Noir & blanc contrasté", premium: true, color: "from-zinc-800 to-gray-600" },
     { key: "contrast", label: "Contrasté ⚡", description: "Accent fort et lisibilité", premium: true, color: "from-orange-500 to-amber-400" },
     { key: "serene", label: "Serein 💧", description: "Bleu doux et apaisant", premium: true, color: "from-cyan-400 to-blue-300" },
   ];
 
   /* ============================================================
-     🖥️ Interface
+     🖥️ Interface principale
   ============================================================ */
   return (
     <Transition appear show={open} as={Fragment}>
@@ -245,7 +245,10 @@ export default function InvoicePreviewer({ open, onClose, invoice }: InvoicePrev
               {/* PDF PREVIEW */}
               <div className="h-[70vh] bg-gray-900/80 border-b border-gray-800 flex items-center justify-center overflow-hidden">
                 <PDFViewer width="100%" height="100%">
-                  <InvoicePDFDocument invoice={{ ...invoice, company_tva_option: `${userTax}%` }} theme={theme} />
+                  <InvoicePDFDocument
+                    invoice={{ ...invoice, company_tva_option: `${userTax}%` }}
+                    theme={theme}
+                  />
                 </PDFViewer>
               </div>
 
