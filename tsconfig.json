@@ -1,45 +1,67 @@
 {
   "compilerOptions": {
-    /* ---- Base Setup ---- */
-    "target": "esnext",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    /* ----------------------------------------
+       🚀 Base Configuration
+    ---------------------------------------- */
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
 
-    /* ---- Module System ---- */
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    /* ----------------------------------------
+       📦 Modules & JSX
+    ---------------------------------------- */
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
 
-    /* ---- DX / Performance ---- */
+    /* ----------------------------------------
+       🧠 Type Definitions
+    ---------------------------------------- */
+    "types": ["node", "react", "react-dom", "@types/jest"],
     "incremental": true,
-    "types": ["node", "react", "react-dom"],
-    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
 
-    /* ---- Path Aliases ---- */
+    /* ----------------------------------------
+       🧭 Path Aliases
+    ---------------------------------------- */
     "paths": {
       "@/*": ["*"],
       "@/app/*": ["app/*"],
       "@/components/*": ["components/*"],
       "@/lib/*": ["lib/*"],
       "@/styles/*": ["styles/*"],
-      "@/types/*": ["types/*"]
+      "@/types/*": ["types/*"],
+      "@/hooks/*": ["hooks/*"]
     },
 
-    /* ---- Plugin Next.js ---- */
-    "plugins": [
-      { "name": "next" }
-    ]
+    /* ----------------------------------------
+       🧩 Next.js Plugin
+    ---------------------------------------- */
+    "plugins": [{ "name": "next" }],
+
+    /* ----------------------------------------
+       🧱 Build Optimization
+    ---------------------------------------- */
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false
   },
 
-  /* ---- Included Files ---- */
+  /* ----------------------------------------
+     📂 Included Files
+  ---------------------------------------- */
   "include": [
     "next-env.d.ts",
     "**/*.ts",
@@ -48,10 +70,8 @@
     ".next/dev/types/**/*.ts"
   ],
 
-  /* ---- Excluded Files ---- */
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build"
-  ]
+  /* ----------------------------------------
+     🚫 Excluded Files
+  ---------------------------------------- */
+  "exclude": ["node_modules", "dist", "build", ".next/cache"]
 }
