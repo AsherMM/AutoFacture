@@ -3,7 +3,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "lib/supabaseClient";
 import { Button } from "./button";
 import { toast } from "sonner";
 import {

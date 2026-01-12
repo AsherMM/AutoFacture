@@ -13,7 +13,7 @@ import {
   Settings,
   HelpCircle,
 } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "lib/supabaseClient";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 

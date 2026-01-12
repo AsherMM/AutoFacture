@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDFDocument } from "../InvoicePDFDocument";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "lib/supabaseClient";
 
 // 🔗 Bouton Téléchargement PDF (client-side uniquement)
 export function DownloadInvoiceButton({ invoice }: { invoice: any }) {

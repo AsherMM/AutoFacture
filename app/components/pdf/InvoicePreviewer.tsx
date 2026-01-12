@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import { Lock, CheckCircle2, X, Star, Sparkles, Crown } from "lucide-react";
 import clsx from "clsx";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "lib/supabaseClient";
 import { DownloadInvoiceButton } from "./invoicePDF"; // ✅ Nouveau système
 import { InvoicePDFDocument } from "../InvoicePDFDocument"; // ✅ Pur PDF (pas de hooks)
 import { PDFViewer } from "@react-pdf/renderer";

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "lib/supabaseClient";
 
 export default function SessionGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
