@@ -114,9 +114,15 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
   ============================================================ */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return toast.error("Session expirée, reconnectez-vous.");
-    if (!form.client_name || !form.amount)
-      return toast.error("Veuillez remplir les champs requis.");
+if (!user) {
+  toast.error("Session expirée, reconnectez-vous.");
+  return;
+}
+
+if (!form.client_name || !form.amount) {
+  toast.error("Veuillez remplir les champs requis.");
+  return;
+}
 
     try {
       setLoading(true);
