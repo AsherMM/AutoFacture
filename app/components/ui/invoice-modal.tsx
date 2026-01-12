@@ -101,63 +101,87 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
         }
       }
     };
-    if (open) loadCompany();
-  }, [open]);
+    if (open) void loadCompany();
+  }, [open, plan]);
 
   // 📝 Gestion des champs
-  const handleChange = (e: any) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
-  };
+ const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  const target = e.target;
+  const name = target.name;
+  let value: string | boolean = target.value;
 
-  // 💾 Soumission
-  const handleSubmit = async (e: React.FormEvent) => {
+  // ✅ Narrowing du type : si c’est une checkbox → utilise checked
+  if (target instanceof HTMLInputElement && target.type === "checkbox") {
+    value = target.checked;
+  }
+
+  setForm((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
+
+
+  // 💾 Soumission — 100 % typée, toutes branches terminées
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    if (!user) return toast.error("Session expirée, reconnectez-vous.");
-    if (!form.client_name || !form.amount || !form.company_name) {
-      return toast.error("Veuillez remplir tous les champs requis.");
-    }
 
-    setLoading(true);
-    const { error } = await supabase.from("invoices").insert([
-      {
-        user_id: user.id,
-        client_name: form.client_name,
-        client_email: form.client_email,
-        client_phone: form.client_phone,
-        amount: Number(form.amount),
-        description: form.description,
-        status: form.status,
-        company_name: form.company_name,
-        company_status: form.company_status,
-        company_siret: form.company_siret,
-        company_tva: form.company_tva,
-        company_address: form.company_address,
-        company_logo_urls: logoPreviews,
-        payment_method: form.payment_method,
-        iban_encrypted: form.hide_payment_info ? null : form.iban_encrypted,
-        bic_encrypted: form.hide_payment_info ? null : form.bic_encrypted,
-        paypal_email_encrypted: form.hide_payment_info ? null : form.paypal_email_encrypted,
-      },
-    ]);
-
-    if (error) {
-      toast.error("Erreur lors de la création de la facture.");
-      console.error(error);
-      setLoading(false);
+    if (!user) {
+      toast.error("Session expirée, reconnectez-vous.");
       return;
     }
 
-    toast.success("✅ Facture créée avec succès !");
-    setLoading(false);
-    onCreated?.();
-    onClose();
+    if (!form.client_name || !form.amount || !form.company_name) {
+      toast.error("Veuillez remplir tous les champs requis.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { error } = await supabase.from("invoices").insert([
+        {
+          user_id: user.id,
+          client_name: form.client_name,
+          client_email: form.client_email,
+          client_phone: form.client_phone,
+          amount: Number(form.amount),
+          description: form.description,
+          status: form.status,
+          company_name: form.company_name,
+          company_status: form.company_status,
+          company_siret: form.company_siret,
+          company_tva: form.company_tva,
+          company_address: form.company_address,
+          company_logo_urls: logoPreviews,
+          payment_method: form.payment_method,
+          iban_encrypted: form.hide_payment_info ? null : form.iban_encrypted,
+          bic_encrypted: form.hide_payment_info ? null : form.bic_encrypted,
+          paypal_email_encrypted: form.hide_payment_info ? null : form.paypal_email_encrypted,
+        },
+      ]);
+
+      if (error) {
+        toast.error("Erreur lors de la création de la facture.");
+        console.error(error);
+        return;
+      }
+
+      toast.success("✅ Facture créée avec succès !");
+      onCreated?.();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error("Une erreur inattendue est survenue.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 💳 Logos de paiement
-  const paymentLogos = {
+  // 💳 Logos de paiement (avec tes images locales)
+  const paymentLogos: Record<string, string> = {
     virement: "/icons/virementlogo.webp",
-    liquide: "/icons/espece.png",
     paypal: "/icons/logopaypal.png",
     carte: "/icons/logocb.jpg",
   };
@@ -182,13 +206,25 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
                 <h2 className="text-3xl font-bold text-blue-400 flex items-center gap-2">
                   <FileText className="w-7 h-7" /> Nouvelle facture
                 </h2>
-                <p className="text-gray-400 text-sm mt-1">Créez votre facture facilement et rapidement.</p>
+                <p className="text-gray-400 text-sm mt-1">
+                  Créez votre facture facilement et rapidement.
+                </p>
               </div>
               {logoPreviews.length > 0 && (
                 <div className="flex gap-3">
                   {logoPreviews.map((url, i) => (
-                    <div key={i} className="w-[65px] h-[65px] border border-gray-700 rounded-xl bg-white/10 p-1.5">
-                      <Image src={url} alt="logo" width={55} height={55} className="object-contain rounded-lg" unoptimized />
+                    <div
+                      key={i}
+                      className="w-[65px] h-[65px] border border-gray-700 rounded-xl bg-white/10 p-1.5"
+                    >
+                      <Image
+                        src={url}
+                        alt="logo"
+                        width={55}
+                        height={55}
+                        className="object-contain rounded-lg"
+                        unoptimized
+                      />
                     </div>
                   ))}
                 </div>
@@ -257,7 +293,6 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
                     ))}
                   </div>
 
-                  {/* Infos dynamiques */}
                   <AnimatePresence>
                     {form.payment_method === "virement" && (
                       <PaymentDetails
