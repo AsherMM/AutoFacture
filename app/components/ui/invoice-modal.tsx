@@ -18,17 +18,22 @@ import {
   Crown,
   Lock,
   ScrollText,
-  CalendarDays,
 } from "lucide-react";
 import Image from "next/image";
 import clsx from "clsx";
 
+/* ============================================================
+   🧱 Types
+============================================================ */
 interface InvoiceModalProps {
   open: boolean;
   onClose: () => void;
   onCreated?: () => void;
 }
 
+/* ============================================================
+   🧾 Composant principal
+============================================================ */
 export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalProps) {
   const [user, setUser] = useState<any>(null);
   const [plan, setPlan] = useState<"free" | "premium" | "pro" | "admin">("free");
@@ -43,7 +48,7 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
     client_phone: "",
     client_address: "",
     amount: "",
-    due_date: "", // ✅ Nouvelle propriété date d’échéance
+    due_date: "",
     description: "",
     status: "En cours",
     payment_method: "",
@@ -51,40 +56,58 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
   });
 
   /* ============================================================
-     🧠 Chargement du profil + settings
+     🧠 Chargement du profil et des paramètres
   ============================================================ */
   useEffect(() => {
-    const loadCompany = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      setUser(user);
-
-      const [{ data: company }, { data: appSettings }] = await Promise.all([
-        supabase.from("users").select("*").eq("id", user.id).maybeSingle(),
-        supabase.from("settings").select("*").eq("user_id", user.id).maybeSingle(),
-      ]);
-
-      if (!company) return toast.error("Profil entreprise introuvable.");
-
-      setProfile(company);
-      setSettings(appSettings);
-      setPlan(
-        company.role === "admin"
-          ? "admin"
-          : (company.subscription_status as "free" | "premium" | "pro") || "free"
-      );
-
+    const loadCompany = async (): Promise<void> => {
       try {
-        const logos = Array.isArray(company.company_logo_urls)
-          ? company.company_logo_urls
-          : JSON.parse(company.company_logo_urls || "[]");
-        setLogoPreviews(logos.slice(0, plan === "pro" || plan === "admin" ? 3 : 1));
-      } catch {
-        setLogoPreviews([]);
+        const { data: auth } = await supabase.auth.getUser();
+        const currentUser = auth?.user;
+        if (!currentUser) return;
+
+        setUser(currentUser);
+
+        const [{ data: company }, { data: appSettings }] = await Promise.all([
+          supabase.from("users").select("*").eq("id", currentUser.id).maybeSingle(),
+          supabase.from("settings").select("*").eq("user_id", currentUser.id).maybeSingle(),
+        ]);
+
+        if (!company) {
+          toast.error("Profil entreprise introuvable.");
+          return;
+        }
+
+        setProfile(company);
+        setSettings(appSettings);
+
+        const currentPlan =
+          company.role === "admin"
+            ? "admin"
+            : (company.subscription_status as "free" | "premium" | "pro") || "free";
+
+        setPlan(currentPlan);
+
+        let logos: string[] = [];
+        try {
+          const parsed =
+            typeof company.company_logo_urls === "string"
+              ? JSON.parse(company.company_logo_urls || "[]")
+              : company.company_logo_urls;
+          logos = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          logos = [];
+        }
+
+        setLogoPreviews(
+          logos.slice(0, currentPlan === "pro" || currentPlan === "admin" ? 3 : 1)
+        );
+      } catch (err) {
+        console.error("Erreur chargement entreprise :", err);
+        toast.error("Erreur lors du chargement des données.");
       }
     };
     if (open) void loadCompany();
-  }, [open, plan]);
+  }, [open]);
 
   /* ============================================================
      💾 Création de la facture
@@ -108,9 +131,8 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
         description: form.description,
         status: form.status,
         payment_method: form.payment_method,
-        due_date: form.due_date, // ✅ Ajout date d’échéance
+        due_date: form.due_date,
 
-        // Données entreprise
         company_name: profile?.company_name,
         company_status: profile?.company_status,
         company_address: profile?.company_address,
@@ -129,7 +151,7 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
       const { error } = await supabase.from("invoices").insert([invoiceData]);
       if (error) throw error;
 
-      if (form.save_client && (plan === "pro" || plan === "admin")) {
+      if (form.save_client && ["pro", "admin"].includes(plan)) {
         await supabase.from("clients").insert([
           {
             user_id: user.id,
@@ -153,7 +175,7 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
   };
 
   /* ============================================================
-     🎨 Thèmes dynamiques
+     🎨 Thèmes dynamiques selon le plan
   ============================================================ */
   const theme =
     {
@@ -184,7 +206,7 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
     }[plan];
 
   /* ============================================================
-     🧭 Interface
+     🧭 Interface principale
   ============================================================ */
   return (
     <Transition appear show={open} as={Fragment}>
@@ -241,7 +263,6 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
 
             {/* CONTENU */}
             <main className="overflow-y-auto px-8 py-6 space-y-10 max-h-[75vh]">
-              {/* ENTREPRISE */}
               <Section icon={<Building2 />} title="Entreprise" accent={theme.accent}>
                 <div className="grid md:grid-cols-2 gap-5 text-sm text-gray-300">
                   <InfoLine label="Nom" value={profile?.company_name} />
@@ -253,7 +274,6 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
                 </div>
               </Section>
 
-              {/* CLIENT */}
               <Section icon={<Phone />} title="Client" accent={theme.accent}>
                 <div className="grid md:grid-cols-2 gap-5">
                   <Field label="Nom complet" name="client_name" value={form.client_name} onChange={handleChange(setForm)} />
@@ -272,7 +292,6 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
                 )}
               </Section>
 
-              {/* PAIEMENT */}
               <Section icon={<CreditCard />} title="Paiement" accent={theme.accent}>
                 <div className="grid md:grid-cols-3 gap-5">
                   <Field label="Montant HT (€)" name="amount" type="number" value={form.amount} onChange={handleChange(setForm)} />
@@ -290,30 +309,13 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
                   />
                 </div>
 
-                {/* Choix de paiement stylé */}
                 <div className="grid grid-cols-3 gap-4 mt-6">
-                  <PaymentOption
-                    label="Virement bancaire"
-                    icon="icons/virementlogo.webp"
-                    selected={form.payment_method === "virement"}
-                    onClick={() => setForm((f: any) => ({ ...f, payment_method: "virement" }))}
-                  />
-                  <PaymentOption
-                    label="PayPal"
-                    icon="icons/logopaypal.png"
-                    selected={form.payment_method === "paypal"}
-                    onClick={() => setForm((f: any) => ({ ...f, payment_method: "paypal" }))}
-                  />
-                  <PaymentOption
-                    label="Carte bancaire"
-                    icon="icons/logocb.jpg"
-                    selected={form.payment_method === "carte"}
-                    onClick={() => setForm((f: any) => ({ ...f, payment_method: "carte" }))}
-                  />
+                  <PaymentOption label="Virement bancaire" icon="icons/virementlogo.webp" selected={form.payment_method === "virement"} onClick={() => setForm((f: any) => ({ ...f, payment_method: "virement" }))} />
+                  <PaymentOption label="PayPal" icon="icons/logopaypal.png" selected={form.payment_method === "paypal"} onClick={() => setForm((f: any) => ({ ...f, payment_method: "paypal" }))} />
+                  <PaymentOption label="Carte bancaire" icon="icons/logocb.jpg" selected={form.payment_method === "carte"} onClick={() => setForm((f: any) => ({ ...f, payment_method: "carte" }))} />
                 </div>
               </Section>
 
-              {/* MENTIONS */}
               <Section icon={<ScrollText />} title="Mentions & Conditions" accent={theme.accent}>
                 <div className="grid md:grid-cols-2 gap-5 text-sm text-gray-300">
                   <InfoLine label="TVA" value={profile?.company_tva} />
@@ -330,16 +332,11 @@ export default function InvoiceModal({ open, onClose, onCreated }: InvoiceModalP
               </Section>
             </main>
 
-            {/* FOOTER */}
             <footer className="sticky bottom-0 bg-gray-950/90 backdrop-blur-lg border-t border-gray-800 p-6 flex justify-end gap-4">
               <Button variant="outline" onClick={onClose} className="border-gray-700 text-gray-400 hover:bg-gray-800">
                 Annuler
               </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 flex items-center gap-2 text-white"
-              >
+              <Button onClick={handleSubmit} disabled={loading} className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 flex items-center gap-2 text-white">
                 {loading && <Loader2 className="animate-spin w-4 h-4" />}
                 {loading ? "Création..." : "Créer la facture"}
               </Button>
