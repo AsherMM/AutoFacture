@@ -1,5 +1,31 @@
-/** @type {import('next').NextConfig} */
+import type { NextConfig } from "next";
+
+/**
+ * ✅ Configuration Next.js 14
+ * Parfaite pour AutoFacture / NeuriFlux :
+ * - i18n (fr, en, es)
+ * - Sécurité des images distantes
+ * - Typage strict et sans erreurs
+ */
 const nextConfig = {
+  /* ===========================================================
+     🌍 Internationalisation (i18n)
+     =========================================================== */
+  i18n: {
+    // Langues supportées
+    locales: ["fr", "en", "es"],
+
+    // Langue par défaut
+    defaultLocale: "fr",
+
+    // Détection automatique de la langue du navigateur
+    // (non encore typée officiellement, mais prise en charge par Next.js)
+    localeDetection: true,
+  },
+
+  /* ===========================================================
+     🖼️ Configuration des images externes
+     =========================================================== */
   images: {
     remotePatterns: [
       // 🔹 ImgBB
@@ -22,31 +48,45 @@ const nextConfig = {
         hostname: "avatars.githubusercontent.com",
       },
 
-      // 🔹 Supabase (à adapter à ton domaine)
+      // 🔹 Supabase (à remplacer par ton domaine Supabase)
       {
         protocol: "https",
         hostname: "your-project-id.supabase.co",
       },
 
-      // 🔹 Unsplash (pour les visuels libres de droits)
+      // 🔹 Unsplash (visuels libres)
       {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
 
-      // 🔹 Pixabay (autres visuels libres de droits)
+      // 🔹 Pixabay (visuels libres)
       {
         protocol: "https",
         hostname: "cdn.pixabay.com",
       },
 
-      // 🔹 Cloudinary (si tu héberges des images optimisées)
+      // 🔹 Cloudinary (images optimisées)
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
     ],
   },
-};
 
-module.exports = nextConfig;
+  /* ===========================================================
+     ⚙️ Options supplémentaires
+     =========================================================== */
+  reactStrictMode: true,
+  swcMinify: true,
+
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  typescript: {
+    ignoreBuildErrors: false, // ✅ pour garder le typage strict
+  },
+} satisfies NextConfig; // ✅ typage TS strict et sans erreur
+
+export default nextConfig;

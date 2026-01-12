@@ -4,13 +4,16 @@
        🚀 Base Configuration
     ---------------------------------------- */
     "target": "ES2022",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-
     /* ----------------------------------------
        📦 Modules & JSX
     ---------------------------------------- */
@@ -21,32 +24,50 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
-
     /* ----------------------------------------
        🧠 Type Definitions
     ---------------------------------------- */
-    "types": ["node", "react", "react-dom"],
+    "types": [
+      "node",
+      "react",
+      "react-dom"
+    ],
     "incremental": true,
     "baseUrl": ".",
-
     /* ----------------------------------------
        🧭 Path Aliases
     ---------------------------------------- */
     "paths": {
-      "@/*": ["*"],
-      "@/app/*": ["app/*"],
-      "@/components/*": ["app/components/*"],
-      "@/lib/*": ["app/lib/*"],
-      "@/styles/*": ["app/styles/*"],
-      "@/types/*": ["app/types/*"],
-      "@/hooks/*": ["app/hooks/*"]
+      "@/*": [
+        "*"
+      ],
+      "@/app/*": [
+        "app/*"
+      ],
+      "@/components/*": [
+        "app/components/*"
+      ],
+      "@/lib/*": [
+        "app/lib/*"
+      ],
+      "@/styles/*": [
+        "app/styles/*"
+      ],
+      "@/types/*": [
+        "app/types/*"
+      ],
+      "@/hooks/*": [
+        "app/hooks/*"
+      ]
     },
-
     /* ----------------------------------------
        🧩 Next.js Plugin (officiel)
     ---------------------------------------- */
-    "plugins": [{ "name": "next" }],
-
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     /* ----------------------------------------
        🧱 Build Optimization
     ---------------------------------------- */
@@ -57,7 +78,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-
   /* ----------------------------------------
      📂 Included Files
   ---------------------------------------- */
@@ -65,11 +85,17 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
-
   /* ----------------------------------------
      🚫 Excluded Files
   ---------------------------------------- */
-  "exclude": ["node_modules", "dist", "build", ".next/cache", "coverage"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".next/cache",
+    "coverage"
+  ]
 }

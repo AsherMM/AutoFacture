@@ -1,19 +1,21 @@
+"use client";
+
 import React from "react";
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 
-// 🎨 Tous les thèmes sectoriels (identiques à ceux du Previewer)
+/* ============================================================
+   🎨 Thèmes graphiques professionnels
+============================================================ */
 const THEMES = {
-  classic: { primary: "#1E3A8A", accent: "#2563EB", bg: "#FFFFFF", text: "#111827", subtle: "#F3F4F6" },
-  eco: { primary: "#047857", accent: "#10B981", bg: "#ECFDF5", text: "#065F46", subtle: "#D1FAE5" },
-  minimal: { primary: "#111111", accent: "#555555", bg: "#FFFFFF", text: "#111111", subtle: "#F9FAFB" },
-  luxury: { primary: "#D4AF37", accent: "#F5C518", bg: "#0B0B0B", text: "#F3F4F6", subtle: "#1A1A1A" },
-  building: { primary: "#F59E0B", accent: "#FBBF24", bg: "#FFFFFF", text: "#1F2937", subtle: "#F9FAFB" },
-  digital: { primary: "#0EA5E9", accent: "#38BDF8", bg: "#F0F9FF", text: "#0C4A6E", subtle: "#E0F2FE" },
-  creative: { primary: "#7C3AED", accent: "#C084FC", bg: "#F5F3FF", text: "#4C1D95", subtle: "#EDE9FE" },
-  industrial: { primary: "#374151", accent: "#6B7280", bg: "#F3F4F6", text: "#111827", subtle: "#E5E7EB" },
-  construction: { primary: "#D97706", accent: "#F59E0B", bg: "#FFF7ED", text: "#78350F", subtle: "#FEF3C7" },
-  legal: { primary: "#334155", accent: "#475569", bg: "#F8FAFC", text: "#0F172A", subtle: "#E2E8F0" },
-  medical: { primary: "#0891B2", accent: "#06B6D4", bg: "#ECFEFF", text: "#0E7490", subtle: "#CFFAFE" },
+  classic: { primary: "#1E3A8A", accent: "#2563EB", bg: "#FFFFFF", text: "#111827", subtle: "#F9FAFB", border: "#E5E7EB" },
+  modern: { primary: "#0F172A", accent: "#3B82F6", bg: "#FFFFFF", text: "#0F172A", subtle: "#F3F4F6", border: "#E5E7EB" },
+  minimal: { primary: "#000000", accent: "#6B7280", bg: "#FFFFFF", text: "#111111", subtle: "#FAFAFA", border: "#E5E7EB" },
+  luxury: { primary: "#D4AF37", accent: "#FACC15", bg: "#0B0B0B", text: "#F3F4F6", subtle: "#1A1A1A", border: "#2D2D2D" },
+  digital: { primary: "#0284C7", accent: "#38BDF8", bg: "#F0F9FF", text: "#0C4A6E", subtle: "#E0F2FE", border: "#BAE6FD" },
+  creative: { primary: "#7C3AED", accent: "#C084FC", bg: "#F5F3FF", text: "#4C1D95", subtle: "#EDE9FE", border: "#DDD6FE" },
+  elegant: { primary: "#1F2937", accent: "#4B5563", bg: "#FAFAFA", text: "#1F2937", subtle: "#F3F4F6", border: "#D1D5DB" },
+  contrast: { primary: "#111827", accent: "#F59E0B", bg: "#FFFFFF", text: "#111827", subtle: "#FEF3C7", border: "#FCD34D" },
+  serene: { primary: "#0EA5E9", accent: "#67E8F9", bg: "#F0FDFA", text: "#083344", subtle: "#CCFBF1", border: "#99F6E4" },
 } as const;
 
 interface InvoicePDFDocumentProps {
@@ -21,14 +23,45 @@ interface InvoicePDFDocumentProps {
   theme?: keyof typeof THEMES;
 }
 
-export function InvoicePDFDocument({
-  invoice,
-  theme = "classic",
-}: InvoicePDFDocumentProps) {
-  // 🛠️ Fallback automatique si le thème n’existe pas
+/* ============================================================
+   📄 Composant principal
+============================================================ */
+export function InvoicePDFDocument({ invoice, theme = "classic" }: InvoicePDFDocumentProps) {
   const c = THEMES[theme] || THEMES.classic;
 
-  // 💅 Styles dynamiques selon le thème
+  // 💶 Format montant
+  const format = (n: number) => {
+    if (isNaN(n)) return "0,00";
+    const [intPart, decPart] = n.toFixed(2).split(".");
+    return `${intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} ,${decPart}`;
+  };
+
+  // 🧾 Données produits
+  const items = invoice.items?.length
+    ? invoice.items
+    : [{ description: invoice.description || "Prestation", price: invoice.amount || 0, quantity: 1 }];
+
+  // 📊 Calcul TVA
+  const subtotal = items.reduce((sum: number, i: any) => sum + i.price * i.quantity, 0);
+  const tvaRate = (() => {
+    if (!invoice.company_tva_option) return 0;
+    const text = invoice.company_tva_option.toString().toLowerCase();
+    if (text.includes("non") || text.includes("0")) return 0;
+    const match = text.match(/(\d+(\.\d+)?)/);
+    return match ? parseFloat(match[1]) : 0;
+  })();
+  const tvaAmount = (subtotal * tvaRate) / 100;
+  const total = subtotal + tvaAmount;
+  const tvaMention = tvaRate === 0 ? "TVA non applicable, article 293 B du CGI" : `TVA ${tvaRate}%`;
+
+  // 🖼️ Logo
+  const logoUrl =
+    invoice.company_logo_urls?.[0] ||
+    (invoice.company_logo?.startsWith("https://") ? invoice.company_logo : null);
+
+  /* ============================================================
+     💅 Styles professionnels
+  ============================================================ */
   const s = StyleSheet.create({
     page: {
       backgroundColor: c.bg,
@@ -37,51 +70,70 @@ export function InvoicePDFDocument({
       fontFamily: "Helvetica",
       fontSize: 10.5,
       lineHeight: 1.5,
-      position: "relative",
     },
-    watermark: {
-      position: "absolute",
-      top: "40%",
-      left: "50%",
-      transform: "translate(-50%, -50%) rotate(-25deg)",
-      opacity: 0.06,
-      fontSize: invoice.company_name?.length > 15 ? 60 : 80,
-      color: c.accent,
-      textTransform: "uppercase",
-      fontWeight: "bold",
+    accentBar: {
+      height: 6,
+      width: "100%",
+      backgroundColor: c.accent,
+      borderRadius: 3,
+      marginBottom: 15,
     },
-    logo: { width: 90, height: 90, objectFit: "contain", marginBottom: 5 },
-    headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-    invoiceTitle: { fontSize: 28, fontWeight: "bold", color: c.primary },
-    metaLabel: { fontSize: 10, opacity: 0.7 },
-    metaValue: { fontSize: 11, fontWeight: "bold" },
+    header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 25 },
+    logo: { width: 85, height: 85, objectFit: "contain", marginBottom: 8 },
+    titleBlock: { flexDirection: "column", alignItems: "flex-start" },
+    invoiceTitle: { fontSize: 30, fontWeight: "bold", color: c.primary, marginTop: 10, letterSpacing: 1 },
+    metaBox: { alignItems: "flex-end" },
+    metaLabel: { fontSize: 9, color: "#6B7280" },
+    metaValue: { fontSize: 11, fontWeight: "bold", color: c.text },
+
+    // 🔹 Bloc informations
+    infoRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 25 },
     infoBox: {
       width: "48%",
       borderWidth: 1,
-      borderColor: c.accent,
+      borderColor: c.border,
       borderRadius: 6,
       padding: 10,
       backgroundColor: c.subtle,
     },
-    boxTitle: { fontSize: 11, fontWeight: "bold", color: c.primary, marginBottom: 5 },
+    boxTitle: { fontSize: 11, fontWeight: "bold", color: c.primary, marginBottom: 6, textTransform: "uppercase" },
     boxLine: { fontSize: 10, marginBottom: 2 },
-    table: {
-      width: "100%",
-      borderWidth: 1,
-      borderColor: c.accent,
-      borderRadius: 6,
-      overflow: "hidden",
-      marginTop: 15,
-    },
-    tableHeader: {
-      flexDirection: "row",
-      backgroundColor: c.accent + "22",
-      borderBottomWidth: 1,
-      padding: 6,
-    },
+    clientLine: { fontSize: 9.5, marginBottom: 2, color: c.text, opacity: 0.9 },
+
+    // 🧾 Tableau
+    table: { width: "100%", borderRadius: 8, borderWidth: 1, borderColor: c.border, marginTop: 10, overflow: "hidden" },
+    tableHeader: { flexDirection: "row", backgroundColor: c.accent + "33", borderBottomWidth: 1, padding: 6 },
     headerCell: { fontWeight: "bold", fontSize: 10, color: c.primary, flex: 1 },
-    row: { flexDirection: "row", borderBottomWidth: 0.5, borderColor: c.accent + "33", padding: 6 },
+    row: { flexDirection: "row", borderBottomWidth: 0.5, borderColor: c.border, padding: 6 },
     cell: { flex: 1, fontSize: 10 },
+
+    // 💰 Totaux
+    totalsBox: {
+      marginTop: 25,
+      alignItems: "flex-end",
+      padding: 10,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 8,
+      backgroundColor: c.subtle,
+      width: "45%",
+      alignSelf: "flex-end",
+    },
+    totalLine: { fontSize: 10.5, marginBottom: 2 },
+    totalHighlight: { fontSize: 12, fontWeight: "bold", color: c.primary },
+
+    // 📄 Sections
+    sectionTitle: { fontSize: 11, fontWeight: "bold", color: c.primary, marginTop: 25, marginBottom: 6 },
+    smallText: { fontSize: 9, color: c.text, opacity: 0.85, lineHeight: 1.4 },
+    legalBox: {
+      backgroundColor: c.subtle,
+      padding: 10,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+
+    // 🦶 Footer
     footer: {
       position: "absolute",
       bottom: 25,
@@ -90,70 +142,62 @@ export function InvoicePDFDocument({
       textAlign: "center",
       fontSize: 9,
       borderTopWidth: 1,
-      borderTopColor: c.accent,
-      paddingTop: 6,
+      borderTopColor: c.border,
+      paddingTop: 8,
+      lineHeight: 1.6,
+      opacity: 0.9,
     },
   });
 
-  // 💶 Format monétaire corrigé
-  const format = (n: number) => {
-    if (isNaN(n)) return "0,00";
-    const [intPart, decPart] = n.toFixed(2).split(".");
-    return `${intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} ,${decPart}`;
-  };
-
-  // 🧾 Données dynamiques
-  const items = invoice.items?.length
-    ? invoice.items
-    : [{ description: invoice.description || "Prestation", price: invoice.amount || 0, quantity: 1 }];
-
-  const subtotal = items.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
-  const tva = subtotal * 0.2;
-  const total = subtotal + tva;
-
+  /* ============================================================
+     🧾 Rendu du document
+  ============================================================ */
   return (
     <Document>
       <Page size="A4" style={s.page}>
-        {/* 💧 Filigrane professionnel */}
-        <Text style={s.watermark}>{invoice.company_name || "FACTURE"}</Text>
+        {/* Ligne d'accent */}
+        <View style={s.accentBar} />
 
         {/* HEADER */}
-        <View style={s.headerRow}>
-          <View>
-            {invoice.company_logo && <Image src={invoice.company_logo} style={s.logo} />}
+        <View style={s.header}>
+          <View style={s.titleBlock}>
+            {logoUrl && <Image src={logoUrl} style={s.logo} />}
             <Text style={s.invoiceTitle}>FACTURE</Text>
           </View>
-          <View>
-            <Text style={s.metaLabel}>Référence :</Text>
+          <View style={s.metaBox}>
+            <Text style={s.metaLabel}>Référence</Text>
             <Text style={s.metaValue}>F-{invoice.id?.slice(0, 6) || "000000"}</Text>
-            <Text style={s.metaLabel}>Date :</Text>
+            <Text style={s.metaLabel}>Date</Text>
             <Text style={s.metaValue}>
-              {invoice.created_at
-                ? new Date(invoice.created_at).toLocaleDateString("fr-FR")
-                : ""}
+              {invoice.created_at ? new Date(invoice.created_at).toLocaleDateString("fr-FR") : ""}
             </Text>
+            {invoice.due_date && (
+              <>
+                <Text style={s.metaLabel}>Échéance</Text>
+                <Text style={s.metaValue}>
+                  {new Date(invoice.due_date).toLocaleDateString("fr-FR")}
+                </Text>
+              </>
+            )}
           </View>
         </View>
 
         {/* ENTREPRISE / CLIENT */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginVertical: 20,
-          }}
-        >
+        <View style={s.infoRow}>
           <View style={s.infoBox}>
             <Text style={s.boxTitle}>Entreprise</Text>
             <Text style={s.boxLine}>{invoice.company_name}</Text>
-            <Text style={s.boxLine}>{invoice.company_address}</Text>
-            <Text style={s.boxLine}>{invoice.company_status}</Text>
+            {invoice.company_status && <Text style={s.boxLine}>{invoice.company_status}</Text>}
+            {invoice.company_address && <Text style={s.boxLine}>{invoice.company_address}</Text>}
+            {invoice.company_city && <Text style={s.boxLine}>{invoice.company_city}</Text>}
           </View>
+
           <View style={s.infoBox}>
             <Text style={s.boxTitle}>Client</Text>
-            <Text style={s.boxLine}>{invoice.client_name}</Text>
-            <Text style={s.boxLine}>{invoice.client_address}</Text>
-            <Text style={s.boxLine}>{invoice.client_email}</Text>
+            <Text style={[s.boxLine, { fontWeight: "bold" }]}>{invoice.client_name}</Text>
+            {invoice.client_address && <Text style={s.clientLine}>{invoice.client_address}</Text>}
+            {invoice.client_phone && <Text style={s.clientLine}>{invoice.client_phone}</Text>}
+            {invoice.client_email && <Text style={s.clientLine}>{invoice.client_email}</Text>}
           </View>
         </View>
 
@@ -175,19 +219,50 @@ export function InvoicePDFDocument({
           ))}
         </View>
 
-        {/* TOTALS */}
-        <View style={{ marginTop: 25, alignItems: "flex-end" }}>
-          <Text>Total HT : {format(subtotal)} €</Text>
-          <Text>TVA (20%) : {format(tva)} €</Text>
-          <Text style={{ fontWeight: "bold", color: c.primary }}>
-            Total TTC : {format(total)} €
+        {/* RÉCAP TOTAL */}
+        <View style={s.totalsBox}>
+          <Text style={s.totalLine}>Sous-total HT : {format(subtotal)} €</Text>
+          <Text style={s.totalLine}>{tvaMention} : {format(tvaAmount)} €</Text>
+          <Text style={s.totalHighlight}>Total TTC : {format(total)} €</Text>
+        </View>
+
+        {/* CONDITIONS DE PAIEMENT */}
+        <Text style={s.sectionTitle}>Conditions de paiement</Text>
+        <View style={s.legalBox}>
+          {invoice.due_date && (
+            <Text style={s.smallText}>
+              - Paiement avant le {new Date(invoice.due_date).toLocaleDateString("fr-FR")}.
+            </Text>
+          )}
+          <Text style={s.smallText}>
+            - Pénalités de retard : taux légal + 10 points dès le lendemain de la date d’échéance.
+          </Text>
+          <Text style={s.smallText}>
+            - Indemnité forfaitaire pour frais de recouvrement : 40 € (article L441-10 du Code de commerce).
           </Text>
         </View>
 
+        {/* MENTIONS LÉGALES */}
+        {(invoice.legal_mentions || invoice.clause_penale) && (
+          <>
+            <Text style={s.sectionTitle}>Mentions légales</Text>
+            <View style={s.legalBox}>
+              {invoice.legal_mentions && <Text style={s.smallText}>{invoice.legal_mentions}</Text>}
+              {invoice.clause_penale && <Text style={s.smallText}>{invoice.clause_penale}</Text>}
+            </View>
+          </>
+        )}
+
         {/* FOOTER */}
         <Text style={s.footer}>
-          {invoice.company_name} — {invoice.company_status}{"\n"}
-          © {new Date().getFullYear()} AutoFacture — Tous droits réservés.
+          {invoice.company_name}
+          {invoice.company_address ? ` — ${invoice.company_address}` : ""}
+          {invoice.company_city ? `, ${invoice.company_city}` : ""}
+          {"\n"}
+          {invoice.company_siret ? `SIRET : ${invoice.company_siret}` : ""}{" "}
+          {invoice.company_rcs_rm ? `• RCS / RM :  ${invoice.company_rcs_rm}` : ""}
+          {"\n"}
+          © {new Date().getFullYear()} AutoFacture • Généré automatiquement avec soin
         </Text>
       </Page>
     </Document>

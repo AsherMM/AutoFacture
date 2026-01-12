@@ -16,6 +16,7 @@ import {
   Loader2,
   ArrowUpRight,
   CheckCircle2,
+  Crown,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { DownloadInvoiceButton } from "../../components/pdf/invoicePDF";
@@ -31,7 +32,7 @@ export default function FacturesPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
 
-  // 📥 Chargement des factures et infos utilisateur
+  // 📥 Chargement des factures et du profil
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,7 +50,7 @@ export default function FacturesPage() {
 
         if (error) throw error;
         setInvoices(invoicesData || []);
-        setIsPremium(userData?.subscription_status === "premium");
+        setIsPremium(userData?.subscription_status === "premium" || userData?.subscription_status === "pro");
       } catch (err) {
         console.error("Erreur de chargement :", err);
       } finally {
@@ -59,7 +60,7 @@ export default function FacturesPage() {
     fetchData();
   }, []);
 
-  // 🔎 Filtrage intelligent
+  // 🔎 Filtrage dynamique
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
       invoice.client_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -73,7 +74,9 @@ export default function FacturesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Supprimer définitivement cette facture ?")) return;
     const { error } = await supabase.from("invoices").delete().eq("id", id);
-    if (!error) setInvoices(invoices.filter((f) => f.id !== id));
+    if (!error) {
+      setInvoices(invoices.filter((f) => f.id !== id));
+    }
   };
 
   return (
@@ -87,15 +90,16 @@ export default function FacturesPage() {
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-100 flex items-center gap-2">
-              <FileText className="w-8 h-8 text-blue-400" /> Mes Factures
+            <h1 className="text-3xl font-bold text-gray-100 flex items-center gap-3">
+              <FileText className="w-8 h-8 text-blue-400 drop-shadow-[0_0_10px_rgba(59,130,246,0.4)]" />
+              Mes Factures
             </h1>
             <p className="text-gray-400 text-sm mt-1">
-              Visualisez, gérez et exportez vos factures en toute simplicité.
+              Consultez, filtrez et exportez vos factures facilement.
             </p>
           </div>
 
-          {/* Recherche + filtre */}
+          {/* 🔍 Barre de recherche et filtres */}
           <div className="flex items-center gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
@@ -104,14 +108,14 @@ export default function FacturesPage() {
                 placeholder="Rechercher un client..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 pr-3 py-2 rounded-lg bg-gray-900 border border-gray-700 text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="pl-9 pr-3 py-2 rounded-xl bg-gray-900 border border-gray-800 text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all hover:border-blue-600/40"
               />
             </div>
 
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="py-2 px-3 rounded-lg bg-gray-900 border border-gray-700 text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="py-2 px-3 rounded-xl bg-gray-900 border border-gray-800 text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all hover:border-blue-600/40"
             >
               <option value="all">Tous les statuts</option>
               <option value="validée">Validée</option>
@@ -127,32 +131,31 @@ export default function FacturesPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className={clsx(
-            "flex items-center justify-between p-4 rounded-xl shadow-inner",
+            "flex items-center justify-between p-4 rounded-2xl shadow-inner backdrop-blur-md border transition-all",
             isPremium
-              ? "border border-yellow-500/30 bg-yellow-500/10 text-yellow-200"
-              : "border border-blue-500/30 bg-blue-500/10 text-blue-200"
+              ? "border-yellow-400/30 bg-gradient-to-r from-yellow-900/20 to-yellow-800/10 text-yellow-200"
+              : "border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-indigo-900/10 text-blue-200"
           )}
         >
           <p className="text-sm flex items-center gap-2">
             {isPremium ? (
               <>
-                <Sparkles className="text-yellow-400" />
+                <Crown className="text-yellow-400" />
                 <span>
-                  Mode <strong>Premium activé</strong> — Accédez à tous les modèles et
-                  fonctionnalités exclusives 💎
+                  <strong>Premium activé</strong> — vous profitez de toutes les fonctionnalités 💎
                 </span>
               </>
             ) : (
               <>
                 <Layers className="text-blue-400" />
                 <span>
-                  Passez en <strong>Premium</strong> pour débloquer les thèmes “Éco”, “Luxury” et la génération PDF avancée.
+                  Passez en <strong>Premium</strong> pour débloquer les thèmes et l’export PDF avancé.
                 </span>
               </>
             )}
           </p>
           {!isPremium && (
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm flex items-center gap-2">
+            <Button className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white text-sm flex items-center gap-2">
               Devenir Premium <ArrowUpRight className="w-4 h-4" />
             </Button>
           )}
@@ -174,12 +177,12 @@ export default function FacturesPage() {
           >
             <FileText className="w-10 h-10 mx-auto mb-2 text-gray-600" />
             <p className="text-gray-400 text-sm">
-              Aucune facture trouvée pour l’instant. Créez votre première facture pour commencer.
+              Aucune facture trouvée. Créez votre première facture pour commencer.
             </p>
           </motion.div>
         )}
 
-        {/* LISTE DES FACTURES */}
+        {/* 🧾 LISTE DES FACTURES */}
         {!loading && filteredInvoices.length > 0 && (
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             <AnimatePresence>
@@ -189,15 +192,17 @@ export default function FacturesPage() {
                   layout
                   whileHover={{ scale: 1.02, y: -3 }}
                   transition={{ type: "spring", stiffness: 150 }}
-                  className="group relative bg-gradient-to-br from-gray-900 via-gray-850 to-gray-950 border border-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-blue-500/20 transition-all"
+                  className="group relative bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 border border-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-blue-500/20 transition-all hover:border-blue-700/40"
                 >
+                  {/* HEADER */}
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-lg font-semibold text-gray-100 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-blue-400" />
                       Facture #{String(index + 1).padStart(2, "0")}
                     </h3>
                     <p
                       className={clsx(
-                        "text-xs px-2 py-1 rounded-full border font-medium capitalize",
+                        "text-xs px-2 py-1 rounded-full border font-medium capitalize transition-colors",
                         invoice.status === "validée"
                           ? "text-green-400 border-green-500/40 bg-green-500/10"
                           : invoice.status === "en cours"
@@ -209,9 +214,11 @@ export default function FacturesPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-2">
+                  {/* CONTENU */}
+                  <div className="space-y-3">
                     <p className="text-sm text-gray-300">
-                      <span className="font-semibold">{invoice.client_name}</span> <br />
+                      <span className="font-semibold">{invoice.client_name}</span>
+                      <br />
                       <span className="text-xs text-gray-500">{invoice.client_email}</span>
                     </p>
                     <p className="flex items-center text-sm text-gray-400 gap-1">
@@ -219,11 +226,12 @@ export default function FacturesPage() {
                       {new Date(invoice.created_at).toLocaleDateString("fr-FR")}
                     </p>
                     <p className="flex items-center text-green-400 font-semibold text-lg gap-1">
-                      <Euro className="w-4 h-4" />{" "}
+                      <Euro className="w-4 h-4" />
                       {invoice.amount ? invoice.amount.toLocaleString("fr-FR") : "0"} €
                     </p>
                   </div>
 
+                  {/* ACTIONS */}
                   <div className="flex justify-between items-center mt-5 pt-3 border-t border-gray-800">
                     <div className="flex gap-2">
                       <Button
@@ -231,14 +239,14 @@ export default function FacturesPage() {
                           setSelectedInvoice(invoice);
                           setPreviewOpen(true);
                         }}
-                        className="bg-blue-600 hover:bg-blue-700 text-white text-xs flex items-center gap-1 px-2 py-1"
+                        className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white text-xs flex items-center gap-1 px-2 py-1 shadow-md"
                       >
                         <Eye className="w-4 h-4" /> Voir
                       </Button>
                       <DownloadInvoiceButton invoice={invoice} />
                       <Button
                         onClick={() => handleDelete(invoice.id)}
-                        className="bg-red-600/20 hover:bg-red-700/30 border border-red-700 text-red-400 text-xs px-2 py-1 flex items-center gap-1"
+                        className="bg-red-600/10 hover:bg-red-700/20 border border-red-700 text-red-400 text-xs px-2 py-1 flex items-center gap-1"
                       >
                         <Trash2 className="w-4 h-4" /> Suppr.
                       </Button>
@@ -255,7 +263,7 @@ export default function FacturesPage() {
           </div>
         )}
 
-        {/* PREVIEW MODALE */}
+        {/* PREVIEW MODAL */}
         {selectedInvoice && (
           <InvoicePreviewer
             open={previewOpen}

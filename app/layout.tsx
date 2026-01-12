@@ -5,34 +5,34 @@ import { ToastProvider } from "./components/ui/use-toast";
 import Script from "next/script";
 
 /* ===========================================================
-   🌐 METADATA — AutoFacture by NeuriFlux
+   🌐 METADATA — NeuriFlux + AutoFacture
    =========================================================== */
 
 export const metadata: Metadata = {
   title: {
-    default: "AutoFacture ⚡ | Facturation intelligente par NeuriFlux",
-    template: "%s | AutoFacture ⚡ by NeuriFlux",
+    default: "NeuriFlux ⚙️ | Intelligent Business Tools",
+    template: "%s | NeuriFlux ⚙️",
   },
   description:
-    "AutoFacture est un service SaaS développé par NeuriFlux. Créez, envoyez et gérez vos factures pro en quelques secondes — une solution moderne, rapide et sécurisée pour freelances et petites entreprises.",
+    "NeuriFlux conçoit des outils SaaS intelligents pour automatiser la facturation, la gestion et la croissance des indépendants et PME. Découvrez AutoFacture, la solution de facturation professionnelle.",
   keywords:
-    "AutoFacture, NeuriFlux, logiciel de facturation, SaaS, facture automatique, facturation freelance, auto-entrepreneur, comptabilité en ligne, automatisation, outil business intelligent",
-  metadataBase: new URL("https://autofacture.fr"),
+    "NeuriFlux, AutoFacture, SaaS, logiciel de facturation, outils business intelligents, automatisation, auto-entrepreneur, PME, productivité, SaaS France",
+  metadataBase: new URL("https://neuriflux.com"),
   alternates: {
-    canonical: "https://autofacture.fr",
+    canonical: "https://neuriflux.com/autofacture",
   },
   openGraph: {
-    title: "AutoFacture ⚡ | Facturation intelligente par NeuriFlux",
+    title: "AutoFacture ⚡ par NeuriFlux — Facturation intelligente et rapide",
     description:
-      "Créez et gérez vos factures professionnelles en un clic. AutoFacture est un service SaaS développé par NeuriFlux, la suite d’outils business intelligents.",
-    url: "https://autofacture.fr",
-    siteName: "AutoFacture",
+      "Créez, envoyez et gérez vos factures pro en quelques secondes. AutoFacture est un produit NeuriFlux conçu pour simplifier la gestion des indépendants et PME.",
+    url: "https://neuriflux.com/autofacture",
+    siteName: "NeuriFlux",
     images: [
       {
-        url: "/og-image-autofacture.png",
+        url: "/og-image-neuriflux-autofacture.png",
         width: 1200,
         height: 630,
-        alt: "AutoFacture - Facturation intelligente par NeuriFlux",
+        alt: "AutoFacture par NeuriFlux - Facturation intelligente",
       },
     ],
     locale: "fr_FR",
@@ -42,10 +42,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@neuriflux",
     creator: "@neuriflux",
-    title: "AutoFacture ⚡ | Une solution NeuriFlux",
+    title: "AutoFacture ⚡ | Facturation intelligente par NeuriFlux",
     description:
-      "AutoFacture — un service NeuriFlux pour créer, envoyer et gérer vos factures intelligemment.",
-    images: ["/og-image-autofacture.png"],
+      "AutoFacture est un produit NeuriFlux — la suite SaaS pour automatiser votre facturation professionnelle.",
+    images: ["/og-image-neuriflux-autofacture.png"],
   },
   icons: {
     icon: "/favicon.ico",
@@ -54,10 +54,7 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   themeColor: "#4f46e5",
-  authors: [
-    { name: "NeuriFlux", url: "https://neuriflux.com" },
-    { name: "AutoFacture", url: "https://autofacture.fr" },
-  ],
+  authors: [{ name: "NeuriFlux", url: "https://neuriflux.com" }],
   robots: {
     index: true,
     follow: true,
@@ -88,24 +85,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
-        <meta name="application-name" content="AutoFacture by NeuriFlux" />
+        <meta name="application-name" content="NeuriFlux" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="AutoFacture" />
       </head>
 
-      <body
-        className="bg-gray-950 text-white antialiased selection:bg-blue-600/40 selection:text-white relative font-inter"
-      >
-        {/* 🧭 Accessibilité — Skip link */}
+      <body className="bg-gray-950 text-white antialiased selection:bg-indigo-600/40 selection:text-white relative font-inter">
         <a
           href="#main-content"
-          className="absolute left-2 top-2 bg-blue-700 text-white px-3 py-2 rounded-lg text-sm opacity-0 focus:opacity-100 z-50"
+          className="absolute left-2 top-2 bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm opacity-0 focus:opacity-100 z-50"
         >
           Aller au contenu principal
         </a>
 
-        {/* ⚡ Toasts & Context Provider */}
         <ToastProvider>
           <ClientLayout>
             <main id="main-content">{children}</main>
@@ -130,7 +122,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   "https://linkedin.com/company/neuriflux",
                 ],
                 description:
-                  "NeuriFlux conçoit des outils SaaS intelligents pour automatiser la gestion et la croissance des entreprises.",
+                  "NeuriFlux développe des solutions SaaS intelligentes pour automatiser la gestion et la facturation.",
                 brand: {
                   "@type": "Brand",
                   name: "NeuriFlux",
@@ -139,7 +131,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               },
               {
                 "@type": "Product",
-                "@id": "https://autofacture.fr/#product",
+                "@id": "https://neuriflux.com/autofacture#product",
                 name: "AutoFacture",
                 brand: {
                   "@type": "Organization",
@@ -147,15 +139,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   url: "https://neuriflux.com",
                 },
                 description:
-                  "AutoFacture est une application SaaS signée NeuriFlux pour créer, envoyer et gérer vos factures pro en toute simplicité.",
-                image: "https://autofacture.fr/og-image-autofacture.png",
-                url: "https://autofacture.fr",
+                  "AutoFacture est un SaaS NeuriFlux pour créer, envoyer et gérer vos factures pro sans effort.",
+                image: "https://neuriflux.com/og-image-neuriflux-autofacture.png",
                 offers: {
                   "@type": "Offer",
                   priceCurrency: "EUR",
-                  price: "9.99",
+                  price: "9.90",
                   availability: "https://schema.org/InStock",
-                  url: "https://autofacture.fr/pricing",
+                  url: "https://neuriflux.com/autofacture",
                 },
                 aggregateRating: {
                   "@type": "AggregateRating",
@@ -166,11 +157,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             ],
           })}
         </Script>
-
-        {/* ===========================================================
-            🧩 Favicon / Apple manifest
-            =========================================================== */}
-        <link rel="manifest" href="/site.webmanifest" />
       </body>
     </html>
   );
