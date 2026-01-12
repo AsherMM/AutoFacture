@@ -1,12 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import ClientLayout from "../app/ClientLayout";
-import { ToastProvider } from "./components/ui/use-toast";
+import ClientLayout from "./ClientLayout";
+import { Toaster } from "sonner";
 import Script from "next/script";
-
-/* ===========================================================
-   🌐 METADATA — NeuriFlux + AutoFacture
-   =========================================================== */
 
 export const metadata: Metadata = {
   title: {
@@ -15,12 +11,7 @@ export const metadata: Metadata = {
   },
   description:
     "NeuriFlux conçoit des outils SaaS intelligents pour automatiser la facturation, la gestion et la croissance des indépendants et PME. Découvrez AutoFacture, la solution de facturation professionnelle.",
-  keywords:
-    "NeuriFlux, AutoFacture, SaaS, logiciel de facturation, outils business intelligents, automatisation, auto-entrepreneur, PME, productivité, SaaS France",
   metadataBase: new URL("https://neuriflux.com"),
-  alternates: {
-    canonical: "https://neuriflux.com/autofacture",
-  },
   openGraph: {
     title: "AutoFacture ⚡ par NeuriFlux — Facturation intelligente et rapide",
     description:
@@ -38,58 +29,16 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    site: "@neuriflux",
-    creator: "@neuriflux",
-    title: "AutoFacture ⚡ | Facturation intelligente par NeuriFlux",
-    description:
-      "AutoFacture est un produit NeuriFlux — la suite SaaS pour automatiser votre facturation professionnelle.",
-    images: ["/og-image-neuriflux-autofacture.png"],
-  },
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
-    shortcut: "/favicon-32x32.png",
   },
-  manifest: "/site.webmanifest",
   themeColor: "#4f46e5",
-  authors: [{ name: "NeuriFlux", url: "https://neuriflux.com" }],
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
-  },
 };
-
-/* ===========================================================
-   ⚙️ ROOT LAYOUT — Structure principale
-   =========================================================== */
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className="scroll-smooth">
-      <head>
-        {/* === SEO + Performance === */}
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#4f46e5" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <meta name="application-name" content="NeuriFlux" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-      </head>
-
       <body className="bg-gray-950 text-white antialiased selection:bg-indigo-600/40 selection:text-white relative font-inter">
         <a
           href="#main-content"
@@ -98,15 +47,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Aller au contenu principal
         </a>
 
-        <ToastProvider>
-          <ClientLayout>
-            <main id="main-content">{children}</main>
-          </ClientLayout>
-        </ToastProvider>
+        <ClientLayout>
+          <main id="main-content">{children}</main>
+        </ClientLayout>
 
-        {/* ===========================================================
-            💡 JSON-LD — SEO Structuré : Organisation + Produit
-            =========================================================== */}
+        <Toaster position="top-right" richColors expand />
+
         <Script id="structured-data" type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -123,36 +69,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 ],
                 description:
                   "NeuriFlux développe des solutions SaaS intelligentes pour automatiser la gestion et la facturation.",
-                brand: {
-                  "@type": "Brand",
-                  name: "NeuriFlux",
-                  slogan: "Intelligent Business Tools",
-                },
-              },
-              {
-                "@type": "Product",
-                "@id": "https://neuriflux.com/autofacture#product",
-                name: "AutoFacture",
-                brand: {
-                  "@type": "Organization",
-                  name: "NeuriFlux",
-                  url: "https://neuriflux.com",
-                },
-                description:
-                  "AutoFacture est un SaaS NeuriFlux pour créer, envoyer et gérer vos factures pro sans effort.",
-                image: "https://neuriflux.com/og-image-neuriflux-autofacture.png",
-                offers: {
-                  "@type": "Offer",
-                  priceCurrency: "EUR",
-                  price: "9.90",
-                  availability: "https://schema.org/InStock",
-                  url: "https://neuriflux.com/autofacture",
-                },
-                aggregateRating: {
-                  "@type": "AggregateRating",
-                  ratingValue: "4.9",
-                  reviewCount: "153",
-                },
               },
             ],
           })}

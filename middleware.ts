@@ -1,16 +1,15 @@
 // middleware.ts
-import createMiddleware from "next-intl/middleware";
+// ✅ Middleware neutre — ne redirige plus vers /fr ni ne modifie les routes.
+// Compatible avec Next.js 15+ / 16 et Turbopack.
 
-export default createMiddleware({
-  locales: ["fr", "en", "es"],
-  defaultLocale: "fr",
-  localeDetection: true,
-});
+import { NextRequest, NextResponse } from "next/server";
 
+export default function middleware(req: NextRequest) {
+  // 🚀 Middleware neutre : il laisse simplement passer la requête.
+  return NextResponse.next();
+}
+
+// ⚙️ Configuration : aucune route spécifique interceptée.
 export const config = {
-  // ⚙️ Appliquer l'i18n uniquement sur les pages "publiques"
-  matcher: [
-    // Toutes les pages SAUF api, _next et fichiers statiques
-    "/((?!api|_next|.*\\..*|login|register|dashboard).*)",
-  ],
+  matcher: ["/((?!api|_next|.*\\..*).*)"],
 };
