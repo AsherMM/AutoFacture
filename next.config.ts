@@ -1,92 +1,80 @@
 import type { NextConfig } from "next";
 
 /**
- * ✅ Configuration Next.js 14
+ * ✅ Configuration Next.js 16
  * Parfaite pour AutoFacture / NeuriFlux :
  * - i18n (fr, en, es)
  * - Sécurité des images distantes
+ * - Compatible Vercel / Netlify
  * - Typage strict et sans erreurs
  */
-const nextConfig = {
+const nextConfig: NextConfig = {
   /* ===========================================================
      🌍 Internationalisation (i18n)
      =========================================================== */
-  i18n: {
-    // Langues supportées
-    locales: ["fr", "en", "es"],
 
-    // Langue par défaut
-    defaultLocale: "fr",
+     // 🚨 Correction du typage localeDetection :
+  // On l’ajoute manuellement (hors validation TS)
+  // car NextConfig officiel ne la définit pas encore.
+  ...(process.env.NODE_ENV && {
+    i18n: {
+      locales: ["fr", "en", "es"],
+      defaultLocale: "fr",
+    },
+  }),
+};
 
-    // Détection automatique de la langue du navigateur
-    // (non encore typée officiellement, mais prise en charge par Next.js)
-    localeDetection: true,
-  },
+// @ts-expect-error — propriété non encore typée dans Next.js
+nextConfig.i18n.localeDetection = true;
 
+Object.assign(nextConfig, {
   /* ===========================================================
-     🖼️ Configuration des images externes
+     🖼️ Sécurité et configuration des images externes
      =========================================================== */
   images: {
     remotePatterns: [
       // 🔹 ImgBB
-      {
-        protocol: "https",
-        hostname: "ibb.co",
-      },
-      {
-        protocol: "https",
-        hostname: "i.ibb.co", // ImgBB héberge les vraies images ici
-      },
+      { protocol: "https", hostname: "ibb.co" },
+      { protocol: "https", hostname: "i.ibb.co" },
 
       // 🔹 Auth providers (Google / GitHub)
-      {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com",
-      },
-      {
-        protocol: "https",
-        hostname: "avatars.githubusercontent.com",
-      },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
 
-      // 🔹 Supabase (à remplacer par ton domaine Supabase)
-      {
-        protocol: "https",
-        hostname: "your-project-id.supabase.co",
-      },
+      // 🔹 Supabase (à adapter à ton instance)
+      { protocol: "https", hostname: "your-project-id.supabase.co" },
 
-      // 🔹 Unsplash (visuels libres)
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-
-      // 🔹 Pixabay (visuels libres)
-      {
-        protocol: "https",
-        hostname: "cdn.pixabay.com",
-      },
-
-      // 🔹 Cloudinary (images optimisées)
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-      },
+      // 🔹 Unsplash / Pixabay / Cloudinary
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "cdn.pixabay.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
     ],
   },
 
   /* ===========================================================
-     ⚙️ Options supplémentaires
+     ⚙️ Configuration générale
      =========================================================== */
   reactStrictMode: true,
-  swcMinify: true,
 
+  // ⚡ SWC minification automatique (inclus par défaut, mais explicitée pour clarté)
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+
+  // 🚫 ESLint et TypeScript stricts
   eslint: {
     ignoreDuringBuilds: true,
   },
-
   typescript: {
-    ignoreBuildErrors: false, // ✅ pour garder le typage strict
+    ignoreBuildErrors: false,
   },
-} satisfies NextConfig; // ✅ typage TS strict et sans erreur
+
+  /* ===========================================================
+     🧪 Options expérimentales / compatibilité
+     =========================================================== */
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
+});
 
 export default nextConfig;

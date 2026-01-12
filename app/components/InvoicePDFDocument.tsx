@@ -16,6 +16,7 @@ const THEMES = {
   elegant: { primary: "#1F2937", accent: "#4B5563", bg: "#FAFAFA", text: "#1F2937", subtle: "#F3F4F6", border: "#D1D5DB" },
   contrast: { primary: "#111827", accent: "#F59E0B", bg: "#FFFFFF", text: "#111827", subtle: "#FEF3C7", border: "#FCD34D" },
   serene: { primary: "#0EA5E9", accent: "#67E8F9", bg: "#F0FDFA", text: "#083344", subtle: "#CCFBF1", border: "#99F6E4" },
+  nature: { primary: "#047857", accent: "#10B981", bg: "#ECFDF5", text: "#064E3B", subtle: "#D1FAE5", border: "#A7F3D0" },
 } as const;
 
 interface InvoicePDFDocumentProps {
