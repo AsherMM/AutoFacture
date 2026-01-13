@@ -148,7 +148,7 @@ export default function Hero() {
           className="flex-1 relative z-10"
         >
           <Image
-            src="/dashboard-preview.png"
+            src="/icons/banniere.png"
             alt="Interface AutoFacture par NeuriFlux"
             width={600}
             height={380}

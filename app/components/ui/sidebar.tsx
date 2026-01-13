@@ -91,7 +91,7 @@ export default function Sidebar() {
     },
     {
       name: "Abonnement",
-      href: "/dashboard/abo",
+      href: "/dashboard/abonnement",
       icon: CreditCard,
       locked: false,
     },
